@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 @Service
 @RequiredArgsConstructor
@@ -23,20 +23,19 @@ public class GCSService {
 
     /**
      * GCS에 파일을 업로드합니다.
-     * @param fileName 파일명
-     * @param contentType 파일 확장자
-     * @param inputStream 파일 입력 스트림
+     * @param filePath 파일명
+     * @param multipartFile form-data 형식의 파일
      * @return 접근 가능한 url
      * @throws ResponseStatusException 입력 스트림에서 IOException 이 일어날 때 500 반환
      */
-    public String uploadFile(String fileName, String contentType, InputStream inputStream) {
+    public String uploadFile(String filePath, MultipartFile multipartFile) {
         BlobInfo blobInfo;
         try {
             blobInfo = storage.createFrom(
-                    BlobInfo.newBuilder(bucketName, fileName)
-                            .setContentType(contentType)
+                    BlobInfo.newBuilder(bucketName, filePath)
+                            .setContentType(multipartFile.getContentType())
                             .build(),
-                    inputStream
+                    multipartFile.getInputStream()
             );
         } catch (IOException e) {
             // TODO: 2023/02/16 Custom Exception Handler 구현하기
@@ -48,15 +47,15 @@ public class GCSService {
 
     /**
      * GCS에서 파일명으로 Blob을 찾아 존재하면 삭제합니다.
-     * @param fileName 파일명
+     * @param filePath 파일명
      * @throws ResponseStatusException GCS에 해당 파일명이 존재하지 않을 때 404 반환
      */
-    public void deleteFile(String fileName) {
-        boolean isDelete = storage.delete(BlobId.of(bucketName, fileName));
+    public void deleteFile(String filePath) {
+        boolean isDelete = storage.delete(BlobId.of(bucketName, filePath));
 
         if (!isDelete) {
             // TODO: 2023/02/16 Custom Exception Handler 구현하기
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("GCS에 해당 파일명(%s)이 존재하지 않습니다.", fileName));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("GCS에 해당 파일(%s)이 존재하지 않습니다.", filePath));
         }
     }
 }
