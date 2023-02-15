@@ -1,6 +1,16 @@
 cors:
   allowed-origins: "*"
 
+spring:
+  cloud:
+    gcp:
+      storage:
+        credentials:
+          location: ${IAM_JSON_PATH}
+
+bucket:
+  name: ${GCS_BUCKET_NAME}
+
 ---
 spring:
   datasource:
