@@ -1,15 +1,18 @@
+cors:
+  allowed-origins: "*"
 
+---
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/bakku
-    username: ${DB_USER}
+    url: ${JDBC_URL}
+    username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     hikari:
       pool-name: jpa-hikari-pool
       maximum-pool-size: 5
-      jdbc-url: jdbc:mysql://localhost:3306/bakku
-      username: ${DB_USER}
+      jdbc-url: ${JDBC_URL}
+      username: ${DB_USERNAME}
       password: ${DB_PASSWORD}
       driver-class-name: ${spring.datasource.driver-class-name}
       data-source-properties:
@@ -29,9 +32,9 @@ spring:
         show_sql: true
         format_sql: true
         use_sql_comments: true
-    config:
-      activate:
-        on-profile: development
+  config:
+    activate:
+      on-profile: development
 
 logging:
   level:
@@ -42,3 +45,42 @@ logging:
         orm:
           jdbc:
             bind: trace
+
+---
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${JDBC_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: jpa-hikari-pool
+      maximum-pool-size: 5
+      jdbc-url: ${JDBC_URL}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      driver-class-name: ${spring.datasource.driver-class-name}
+      data-source-properties:
+        rewriteBatchedStatements: true
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: ${chunkSize:100}
+        jdbc.batch_size: 20
+        order_inserts: true
+        order_updates: true
+  config:
+    activate:
+      on-profile: production
+  devtools:
+    livereload:
+      enabled: off
+
+server:
+  error:
+    include-stacktrace: never
