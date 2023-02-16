@@ -6,7 +6,7 @@ spring:
     gcp:
       storage:
         credentials:
-          location: ${IAM_JSON_PATH}
+          location: file:${GOOGLE_APPLICATION_CREDENTIALS}
 
 bucket:
   name: ${GCS_BUCKET_NAME}
