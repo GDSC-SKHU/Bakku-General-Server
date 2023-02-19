@@ -1,8 +1,8 @@
 package com.gdsc.bakku.ocean.domain.entity;
 
 import com.gdsc.bakku.common.entity.BaseTimeEntity;
+import com.gdsc.bakku.common.entity.Location;
 import com.gdsc.bakku.storage.domain.entity.Image;
-import org.springframework.data.geo.Point;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +26,8 @@ public class Ocean extends BaseTimeEntity {
     private String address;
 
     @Column(name = "location")
-    private Point location;
+    @Embedded
+    private Location location;
 
     @OneToOne
     @JoinColumn(name = "title_image_id")
