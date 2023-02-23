@@ -1,6 +1,9 @@
 cors:
   allowed-origins: "*"
 
+firebase:
+  key: ${FIREBASE_KEY}
+
 spring:
   cloud:
     gcp:
