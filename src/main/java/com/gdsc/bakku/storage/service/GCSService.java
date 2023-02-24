@@ -1,11 +1,12 @@
 package com.gdsc.bakku.storage.service;
 
+import com.gdsc.bakku.common.exception.CouldNotGenerateInputStreamException;
+import com.gdsc.bakku.common.exception.GCSFIleNotFoundException;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,8 +39,7 @@ public class GCSService {
                     multipartFile.getInputStream()
             );
         } catch (IOException e) {
-            // TODO: 2023/02/16 Custom Exception Handler 구현하기
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "입력 스트림을 생성하는 과정에서 문제가 생겼습니다.");
+            throw new CouldNotGenerateInputStreamException();
         }
 
         return blobInfo.getMediaLink();
@@ -54,8 +54,7 @@ public class GCSService {
         boolean isDelete = storage.delete(BlobId.of(bucketName, filePath));
 
         if (!isDelete) {
-            // TODO: 2023/02/16 Custom Exception Handler 구현하기
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("GCS에 해당 파일(%s)이 존재하지 않습니다.", filePath));
+            throw new GCSFIleNotFoundException();
         }
     }
 }

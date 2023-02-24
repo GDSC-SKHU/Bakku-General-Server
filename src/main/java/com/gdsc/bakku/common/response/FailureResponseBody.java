@@ -6,20 +6,20 @@ import lombok.Getter;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class FailureResponseBody extends AbstractResponseBody{
+@Builder
+public class FailureResponseBody{
 
-    @Builder
-    public FailureResponseBody( String statusDetail, String code) {
-        super(statusDetail, code);
-    }
+    private final String code;
+
+    private final String detail;
+
 
     public static ResponseEntity<FailureResponseBody> toResponseEntity(StatusEnum statusEnum) {
         return ResponseEntity
                 .status(statusEnum.getHttpStatus())
                 .body(FailureResponseBody.builder()
-                        .statusDetail(statusEnum.getHttpStatus()
-                                .name())
-                        .code(statusEnum.getDetail())
+                        .detail(statusEnum.getDetail())
+                        .code(statusEnum.getHttpStatus().name())
                         .build()
                 );
     }

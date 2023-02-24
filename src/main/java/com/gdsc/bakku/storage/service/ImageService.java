@@ -1,9 +1,9 @@
 package com.gdsc.bakku.storage.service;
 
+import com.gdsc.bakku.common.exception.NotSupportFileFormatException;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import com.gdsc.bakku.storage.domain.repo.ImageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,8 +60,7 @@ public class ImageService {
      */
     private void validateImage(String contentType) {
         if (contentType == null || !contentType.startsWith("image/")) {
-            // TODO: 2023/02/16 Custom Exception Handler 구현하기
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일 형식은 이미지만 지원합니다.");
+            throw new NotSupportFileFormatException();
         }
     }
 }
