@@ -1,5 +1,6 @@
 package com.gdsc.bakku.auth.domain.entity;
 
+import com.google.firebase.auth.FirebaseToken;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.BatchSize;
@@ -7,10 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -74,5 +72,13 @@ public class User implements UserDetails {
 
     public void addRoles(Role ... roles) {
         this.roles.addAll(Arrays.asList(roles));
+    }
+
+    public void update(FirebaseToken token, Role ... roles) {
+        this.username = token.getUid();
+        this.email = token.getEmail();
+        this.name = token.getName();
+        this.picture = token.getPicture();
+        this.roles = List.of(roles);
     }
 }
