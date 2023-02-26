@@ -16,6 +16,7 @@ public enum StatusEnum {
     EVENT_NOT_FOUND(NOT_FOUND, "해당 ID를 가진 행사 없음"),
     BAKKU_NOT_FOUND(NOT_FOUND, "해당 ID를 가진 바꾸 없음"),
     GCS_FILE_NOT_FOUND(NOT_FOUND, "GCS에 해당 파일(%s)이 존재하지 않습니다."),
+    USER_NOT_FOUND(NOT_FOUND, "해당 ID를 가진 USER 없음"),
 
     //500
     COULD_NOT_GENERATE_INPUT_STREAM(INTERNAL_SERVER_ERROR, "입력 스트림을 생성하는 과정에서 문제가 생겼습니다.");

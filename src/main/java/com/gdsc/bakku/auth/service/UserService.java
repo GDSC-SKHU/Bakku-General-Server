@@ -3,6 +3,7 @@ package com.gdsc.bakku.auth.service;
 import com.gdsc.bakku.auth.domain.entity.Role;
 import com.gdsc.bakku.auth.domain.entity.User;
 import com.gdsc.bakku.auth.domain.repo.UserRepository;
+import com.gdsc.bakku.common.exception.UserNotFoundException;
 import com.google.firebase.auth.FirebaseToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,6 +31,16 @@ public class UserService implements UserDetailsService {
                 .build();
 
         user.addRoles(roles);
+
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateByUsername(FirebaseToken firebaseToken, Role ... roles) {
+        User user = userRepository.findByUsername(firebaseToken.getUid())
+                .orElseThrow(UserNotFoundException::new);
+
+        user.update(firebaseToken, roles);
 
         return userRepository.save(user);
     }
