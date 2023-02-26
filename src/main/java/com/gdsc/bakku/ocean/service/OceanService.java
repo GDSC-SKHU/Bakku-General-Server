@@ -1,15 +1,14 @@
 package com.gdsc.bakku.ocean.service;
 
 import com.gdsc.bakku.common.entity.Location;
+import com.gdsc.bakku.common.exception.OceanNotFoundException;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepository;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepositorySupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -30,6 +29,6 @@ public class OceanService {
     @Transactional(readOnly = true)
     public Ocean findById(Long id) {
         return oceanRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "해변 존재하지 않음"));
+                .orElseThrow(OceanNotFoundException::new);
     }
 }
