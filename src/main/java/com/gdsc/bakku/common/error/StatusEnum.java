@@ -10,6 +10,7 @@ public enum StatusEnum {
 
     //400
     NOT_SUPPORT_FILE_FORMANT(BAD_REQUEST, "파일 형식은 이미지만 지원합니다."),
+    INVALID_POSITION(BAD_REQUEST, "위도(-90 ~ 90) 혹은 경도(-180 ~ 180)의 범위를 확인해 주세요"),
 
     //404
     OCEAN_NOT_FOUND(NOT_FOUND, "해당 ID를 가진 바다 없음"),

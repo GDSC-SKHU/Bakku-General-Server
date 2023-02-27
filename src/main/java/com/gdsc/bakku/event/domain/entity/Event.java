@@ -1,10 +1,11 @@
 package com.gdsc.bakku.event.domain.entity;
 
 import com.gdsc.bakku.common.entity.BaseTimeEntity;
+import com.gdsc.bakku.common.entity.Position;
+import com.gdsc.bakku.event.dto.EventDTO;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;
 
@@ -32,10 +33,25 @@ public class Event extends BaseTimeEntity {
     @Column(name = "comment", columnDefinition = "TEXT")
     private String comment;
 
-    @Column(name = "location")
-    private Point location;
+    @Embedded
+    private Position position;
 
     @OneToOne
     @JoinColumn(name = "title_image_id")
     private Image image;
+
+    public EventDTO toDTO() {
+        return EventDTO.builder()
+                .id(id)
+                .name(name)
+                .startDate(startDate)
+                .endDate(endDate)
+                .comment(comment)
+                .latitude((position != null) ? position.getLatitude() : null)
+                .longitude((position != null) ? position.getLongitude() : null)
+                .imageUrl((image != null) ? image.getImageUrl() : null)
+                .createdDate(createdDate)
+                .modifiedDate(modifiedDate)
+                .build();
+    }
 }

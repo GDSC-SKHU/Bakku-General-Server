@@ -1,6 +1,6 @@
 package com.gdsc.bakku.event.controller;
 
-import com.gdsc.bakku.event.domain.entity.Event;
+import com.gdsc.bakku.event.dto.EventDTO;
 import com.gdsc.bakku.event.service.EventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +20,8 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping("/events")
-    public ResponseEntity<Slice<Event>> findAll(@PageableDefault(size = 5) Pageable pageable) {
-        Slice<Event> events = eventService.findAll(pageable);
+    public ResponseEntity<Slice<EventDTO>> findAll(@PageableDefault(size = 5) Pageable pageable) {
+        Slice<EventDTO> events = eventService.findAll(pageable);
 
         if (events.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -31,8 +31,8 @@ public class EventController {
     }
 
     @GetMapping("/events/{id}")
-    public ResponseEntity<Event> findById(@PathVariable(name = "id") Long id) {
-        Event event = eventService.findById(id);
+    public ResponseEntity<EventDTO> findById(@PathVariable(name = "id") Long id) {
+        EventDTO event = eventService.findById(id);
 
         return ResponseEntity.ok(event);
     }
