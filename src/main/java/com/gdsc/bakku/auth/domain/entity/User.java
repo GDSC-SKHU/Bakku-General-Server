@@ -74,11 +74,10 @@ public class User implements UserDetails {
         this.roles.addAll(Arrays.asList(roles));
     }
 
-    public void update(FirebaseToken token, Role ... roles) {
+    public void update(FirebaseToken token) {
         this.username = token.getUid();
         this.email = token.getEmail();
         this.name = token.getName();
         this.picture = token.getPicture();
-        this.roles = List.of(roles);
     }
 }
