@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Embeddable
-public class Location {
+public class Position {
 
     @Column(name = "latitude")
     private Double latitude;

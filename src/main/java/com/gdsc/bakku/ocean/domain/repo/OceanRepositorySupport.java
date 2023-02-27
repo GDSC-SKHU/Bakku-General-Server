@@ -25,12 +25,12 @@ public class OceanRepositorySupport {
         List<Ocean> oceanList = jpaQueryFactory.selectFrom(ocean)
                 .limit(pageable.getPageSize() + 1)
                 .offset(pageable.getOffset())
-                .orderBy(ocean.location.latitude.asc().nullsLast(), ocean.location.longitude.asc().nullsLast(),
+                .orderBy(ocean.position.latitude.asc().nullsLast(), ocean.position.longitude.asc().nullsLast(),
                         Expressions.stringTemplate("ST_Distance_Sphere({0}, {1})",
                                 Expressions.stringTemplate("POINT({0}, {1})",
                                         longitude, latitude),
                                 Expressions.stringTemplate("POINT({0}, {1})",
-                                        ocean.location.longitude, ocean.location.latitude))
+                                        ocean.position.longitude, ocean.position.latitude))
                         .asc())
                 .fetch();
 

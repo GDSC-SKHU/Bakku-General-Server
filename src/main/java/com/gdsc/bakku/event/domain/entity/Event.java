@@ -1,7 +1,7 @@
 package com.gdsc.bakku.event.domain.entity;
 
 import com.gdsc.bakku.common.entity.BaseTimeEntity;
-import com.gdsc.bakku.common.entity.Location;
+import com.gdsc.bakku.common.entity.Position;
 import com.gdsc.bakku.event.dto.EventDTO;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import jakarta.persistence.*;
@@ -34,7 +34,7 @@ public class Event extends BaseTimeEntity {
     private String comment;
 
     @Embedded
-    private Location location;
+    private Position position;
 
     @OneToOne
     @JoinColumn(name = "title_image_id")
@@ -47,8 +47,8 @@ public class Event extends BaseTimeEntity {
                 .startDate(startDate)
                 .endDate(endDate)
                 .comment(comment)
-                .latitude((location != null) ? location.getLatitude() : null)
-                .longitude((location != null) ? location.getLongitude() : null)
+                .latitude((position != null) ? position.getLatitude() : null)
+                .longitude((position != null) ? position.getLongitude() : null)
                 .imageUrl((image != null) ? image.getImageUrl() : null)
                 .createdDate(createdDate)
                 .modifiedDate(modifiedDate)
