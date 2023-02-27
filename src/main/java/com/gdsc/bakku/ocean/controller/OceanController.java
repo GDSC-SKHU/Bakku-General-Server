@@ -1,5 +1,6 @@
 package com.gdsc.bakku.ocean.controller;
 
+import com.gdsc.bakku.common.exception.InvalidPositionException;
 import com.gdsc.bakku.ocean.dto.OceanDTO;
 import com.gdsc.bakku.ocean.service.OceanService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,12 @@ public class OceanController {
 
     @GetMapping("/oceans")
     public ResponseEntity<Slice<OceanDTO>> findAll(@RequestParam(name = "lat") Double latitude,
-                                               @RequestParam(name = "lon") Double longitude,
-                                               @PageableDefault(size = 5) Pageable pageable) {
+                                                   @RequestParam(name = "lon") Double longitude,
+                                                   @PageableDefault(size = 5) Pageable pageable) {
+        if (!isPositionValid(latitude, longitude)) {
+            throw new InvalidPositionException();
+        }
+
         Slice<OceanDTO> oceans = oceanService.findAll(latitude, longitude, pageable);
 
         if (oceans.isEmpty()) {
@@ -34,4 +39,8 @@ public class OceanController {
         return ResponseEntity.ok(oceanService.findById(id));
     }
 
+    private boolean isPositionValid(Double latitude, Double longitude) {
+        return (-90.0 <= latitude && latitude <= 90.0) &&
+                (-180.0 <= longitude && longitude <= 180.0);
+    }
 }
