@@ -36,7 +36,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
 
                 User user;
                 try {
-                    user = userService.updateByUsername(firebaseToken, Role.ROLE_USER);
+                    user = userService.updateByUsername(firebaseToken);
                 } catch (UserNotFoundException e) {
                     user = userService.create(firebaseToken, Role.ROLE_USER);
                 }

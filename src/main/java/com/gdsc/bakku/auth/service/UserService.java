@@ -36,11 +36,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User updateByUsername(FirebaseToken firebaseToken, Role ... roles) {
+    public User updateByUsername(FirebaseToken firebaseToken) {
         User user = userRepository.findByUsername(firebaseToken.getUid())
                 .orElseThrow(UserNotFoundException::new);
 
-        user.update(firebaseToken, roles);
+        user.update(firebaseToken);
 
         return userRepository.save(user);
     }
