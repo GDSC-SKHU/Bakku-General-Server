@@ -1,19 +1,21 @@
 package com.gdsc.bakku.common.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Embeddable
 public class Location {
 
-    @NotNull
-    private Double longitude;
-
-    @NotNull
+    @Column(name = "latitude")
     private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
 }
