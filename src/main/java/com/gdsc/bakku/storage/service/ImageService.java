@@ -25,7 +25,7 @@ public class ImageService {
      * @return GCS access url
      */
     @Transactional
-    public String uploadImage(String dirName, MultipartFile multipartFile) {
+    public Image uploadImage(String dirName, MultipartFile multipartFile) {
         validateImage(multipartFile.getContentType());
 
         String randomUUIDName = UUID.randomUUID().toString();
@@ -39,7 +39,7 @@ public class ImageService {
 
         imageRepository.save(image);
 
-        return imageUrl;
+        return image;
     }
 
     /**
