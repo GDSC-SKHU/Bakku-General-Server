@@ -1,5 +1,6 @@
 package com.gdsc.bakku.ocean.service;
 
+import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.common.exception.OceanNotFoundException;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepository;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepositorySupport;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +29,9 @@ public class OceanService {
         return oceanRepository.findById(id)
                 .orElseThrow(OceanNotFoundException::new)
                 .toDTO();
+    }
+
+    public Slice<BakkuResponse> findBakkusById(Long id,Pageable pageable) {
+        return oceanRepositorySupport.findBakkus(id, pageable);
     }
 }
