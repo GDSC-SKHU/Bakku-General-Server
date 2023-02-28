@@ -19,7 +19,7 @@ public class BakkuRequest {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate decorateDate;
-    
+
     private MultipartFile titleImage;
 
     private MultipartFile afterImage;
