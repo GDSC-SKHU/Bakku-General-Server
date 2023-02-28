@@ -1,5 +1,6 @@
 package com.gdsc.bakku.auth.domain.entity;
 
+import com.gdsc.bakku.bakku.domain.entity.Bakku;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +9,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
@@ -43,6 +47,9 @@ public class User implements UserDetails {
     @Column(name = "picture")
     private String picture;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Bakku> bakkus = new ArrayList<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -68,6 +75,11 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getUsername(){
+        return username;
     }
 
     public void addRoles(Role ... roles) {

@@ -1,11 +1,15 @@
 package com.gdsc.bakku.ocean.domain.entity;
 
+import com.gdsc.bakku.bakku.domain.entity.Bakku;
 import com.gdsc.bakku.common.entity.BaseTimeEntity;
 import com.gdsc.bakku.common.entity.Position;
 import com.gdsc.bakku.ocean.dto.OceanDTO;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Getter
@@ -32,6 +36,9 @@ public class Ocean extends BaseTimeEntity {
     @OneToOne
     @JoinColumn(name = "title_image_id")
     private Image image;
+
+    @OneToMany(mappedBy = "ocean", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Bakku> bakkus = new ArrayList<>();
 
     public OceanDTO toDTO() {
         return OceanDTO.builder()
