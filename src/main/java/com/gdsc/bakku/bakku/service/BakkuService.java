@@ -3,9 +3,9 @@ package com.gdsc.bakku.bakku.service;
 import com.gdsc.bakku.auth.domain.entity.User;
 import com.gdsc.bakku.bakku.domain.entity.Bakku;
 import com.gdsc.bakku.bakku.domain.repo.BakkuRepository;
-import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuFieldRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
+import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.common.exception.BakkuNotFoundException;
 import com.gdsc.bakku.group.domain.entity.Group;
@@ -33,11 +33,12 @@ public class BakkuService {
 
     private final ImageService imageService;
 
-
-
     @Transactional
     public BakkuResponse save(BakkuRequest bakkuRequest, User user) {
         Group group = groupService.findOrCreateEntity(bakkuRequest.getGroupName());
+
+        MultipartFile beforeImage = bakkuRequest.getBeforeImage();
+        MultipartFile afterImage = bakkuRequest.getAfterImage();
 
         Bakku bakku = Bakku.builder()
                 .decorateDate(bakkuRequest.getDecorateDate())
@@ -46,8 +47,8 @@ public class BakkuService {
                 .ocean(oceanService.findEntityById(bakkuRequest.getOceanId()))
                 .group(group)
                 .titleImage(imageSave(bakkuRequest.getTitleImage()))
-                .beforeImage(imageSave(bakkuRequest.getBeforeImage()))
-                .afterImage(imageSave(bakkuRequest.getAfterImage()))
+                .beforeImage((beforeImage == null || beforeImage.isEmpty()) ? null : imageSave(beforeImage))
+                .afterImage(imageSave(afterImage))
                 .user(user)
                 .build();
 
@@ -81,13 +82,7 @@ public class BakkuService {
 
         bakkuRepository.delete(bakku);
 
-        imageService.deleteByEntity("bakku/", bakku.getTitleImage());
-
-        imageService.deleteByEntity("bakku/", bakku.getAfterImage());
-
-        if(bakku.getBeforeImage() != null){
-            imageService.deleteByEntity("bakku/", bakku.getBeforeImage());
-        }
+        imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
     }
 
     @Transactional
@@ -105,9 +100,7 @@ public class BakkuService {
 
         bakku.updateGroup(group);
 
-        Bakku updateBakku = bakkuRepository.save(bakku);
-
-        return updateBakku.toDTO();
+        return bakku.toDTO();
     }
 
     @Transactional
@@ -115,18 +108,39 @@ public class BakkuService {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
 
-        bakku.updateTitleImage(imageSave(bakkuImageRequest.getTitleImage()));
+        Image[] imagesForDelete = new Image[3];
 
-        bakku.updateBeforeImage(imageSave(bakkuImageRequest.getBeforeImage()));
+        if (bakkuImageRequest.getIsChangeTitle()) {
+            imagesForDelete[0] = bakku.getTitleImage();
+            bakku.updateTitleImage(imageSave(bakkuImageRequest.getTitleImage()));
+        }
 
-        bakku.updateAfterImage(imageSave(bakkuImageRequest.getAfterImage()));
+        if (bakkuImageRequest.getIsChangeBefore()) {
+            imagesForDelete[1] = bakku.getBeforeImage();
+            bakku.updateBeforeImage(imageSave(bakkuImageRequest.getBeforeImage()));
+        }
+
+        if (bakkuImageRequest.getIsChangeAfter()) {
+            imagesForDelete[2] = bakku.getAfterImage();
+            bakku.updateAfterImage(imageSave(bakkuImageRequest.getAfterImage()));
+        }
+
+        imagesDelete(imagesForDelete);
 
         Bakku updateBakku = bakkuRepository.save(bakku);
 
         return updateBakku.toDTO();
     }
 
+    private void imagesDelete(Image ... images) {
+        for (Image image : images) {
+            if (image == null) continue;
+            imageService.deleteByEntity("bakku/", image);
+        }
+    }
+
     private Image imageSave(MultipartFile image) {
+        if (image == null || image.isEmpty()) return null;
         return imageService.uploadImage("bakku/", image);
     }
 }

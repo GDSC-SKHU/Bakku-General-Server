@@ -6,6 +6,7 @@ import com.gdsc.bakku.bakku.dto.request.BakkuFieldRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.bakku.service.BakkuService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -33,7 +34,8 @@ public class BakkuController {
     }
 
     @PostMapping(value = "/bakkus", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BakkuResponse> saveBakku(@ModelAttribute BakkuRequest bakkuRequest, @AuthenticationPrincipal User user) {
+    public ResponseEntity<BakkuResponse> saveBakku(@Valid @ModelAttribute BakkuRequest bakkuRequest,
+                                                   @AuthenticationPrincipal User user) {
         BakkuResponse bakku = bakkuService.save(bakkuRequest, user);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -45,14 +47,16 @@ public class BakkuController {
     }
 
     @PostMapping(value = "/bakkus/{id}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BakkuResponse> updateBakkuImages(@PathVariable(name = "id") Long id, BakkuImageRequest bakkuImageRequest) {
+    public ResponseEntity<BakkuResponse> updateBakkuImages(@PathVariable(name = "id") Long id,
+                                                           @Valid @ModelAttribute BakkuImageRequest bakkuImageRequest) {
         BakkuResponse bakku = bakkuService.updateBakkuImages(id, bakkuImageRequest);
 
         return ResponseEntity.ok(bakku);
     }
 
     @PatchMapping(value = "/bakkus/{id}")
-    public ResponseEntity<BakkuResponse> updateBakkuField(@PathVariable(name = "id") Long id, @RequestBody BakkuFieldRequest bakkuFieldRequest) {
+    public ResponseEntity<BakkuResponse> updateBakkuField(@PathVariable(name = "id") Long id,
+                                                          @Valid @RequestBody BakkuFieldRequest bakkuFieldRequest) {
 
         BakkuResponse bakku = bakkuService.updateBakkuField(id, bakkuFieldRequest);
 
