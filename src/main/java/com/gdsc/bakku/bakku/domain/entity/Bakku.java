@@ -34,7 +34,7 @@ public class Bakku {
     private LocalDate decorateDate;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "title_image_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "title_image_id", referencedColumnName = "id")
     private Image titleImage;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -42,7 +42,7 @@ public class Bakku {
     private Image beforeImage;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "after_image_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "after_image_id", referencedColumnName = "id")
     private Image afterImage;
 
     @ManyToOne
@@ -64,16 +64,16 @@ public class Bakku {
                 .comment(comment)
                 .cleanWeight(cleanWeight)
                 .decorateTime(decorateDate)
-                .titleImageUrl(titleImage.getImageUrl())
-                .beforeImageUrl(beforeImage.getImageUrl())
-                .afterImageUrl(afterImage.getImageUrl())
+                .titleImageUrl(titleImage != null ? titleImage.getImageUrl() : null)
+                .beforeImageUrl(beforeImage != null ? beforeImage.getImageUrl() : null)
+                .afterImageUrl(afterImage != null ? afterImage.getImageUrl() : null)
                 .groupName(group.getName())
                 .oceanId(ocean.getId())
                 .oceanName(ocean.getName())
                 .build();
     }
 
-    public void update(String comment,int cleanWeight, LocalDate decorateDate ) {
+    public void update(String comment, int cleanWeight, LocalDate decorateDate) {
         this.comment = comment;
 
         this.cleanWeight = cleanWeight;
