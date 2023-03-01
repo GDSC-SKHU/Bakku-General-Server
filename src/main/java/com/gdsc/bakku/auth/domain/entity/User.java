@@ -1,6 +1,5 @@
 package com.gdsc.bakku.auth.domain.entity;
 
-import com.gdsc.bakku.bakku.domain.entity.Bakku;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.persistence.*;
 import lombok.*;
@@ -46,9 +45,6 @@ public class User implements UserDetails {
 
     @Column(name = "picture")
     private String picture;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Bakku> bakkus = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

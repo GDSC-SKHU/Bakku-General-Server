@@ -1,11 +1,8 @@
 package com.gdsc.bakku.ocean.domain.repo;
 
-import com.gdsc.bakku.bakku.domain.entity.QBakku;
-import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.ocean.domain.entity.QOcean;
 import com.gdsc.bakku.ocean.dto.OceanDTO;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -63,34 +60,5 @@ public class  OceanRepositorySupport {
         }
 
         return new SliceImpl<>(oceanDTOS, pageable, hasNext);
-    }
-
-    public Slice<BakkuResponse> findBakkus(Long id, Pageable pageable) {
-        QBakku bakku = QBakku.bakku;
-
-        List<BakkuResponse> bakkus = jpaQueryFactory.select(Projections.constructor(BakkuResponse.class
-                        , bakku.id
-                        , bakku.comment
-                        , bakku.cleanWeight
-                        , bakku.decorateDate
-                        , bakku.titleImage.imageUrl
-                        , bakku.beforeImage.imageUrl
-                        , bakku.afterImage.imageUrl
-                        , bakku.group.name
-                        , bakku.ocean.id
-                        , bakku.ocean.name))
-                .from(bakku)
-                .limit(pageable.getPageSize()+1)
-                .offset(pageable.getOffset())
-                .where(bakku.ocean.id.eq(id))
-                .fetch();
-
-        boolean hasNext = false;
-
-        if (bakkus.size() > pageable.getPageSize()) {
-            bakkus.remove(pageable.getPageSize());
-            hasNext = true;
-        }
-        return new SliceImpl<>(bakkus, pageable, hasNext);
     }
 }

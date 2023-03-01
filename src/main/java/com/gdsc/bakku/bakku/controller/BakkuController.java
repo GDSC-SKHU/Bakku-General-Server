@@ -7,11 +7,16 @@ import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.bakku.service.BakkuService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -31,14 +36,19 @@ public class BakkuController {
     public ResponseEntity<BakkuResponse> saveBakku(@ModelAttribute BakkuRequest bakkuRequest, @AuthenticationPrincipal User user) {
         BakkuResponse bakku = bakkuService.save(bakkuRequest, user);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(bakku);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(bakku.id())
+                .toUri();
+
+        return ResponseEntity.created(uri).body(bakku);
     }
 
     @PostMapping(value = "/bakkus/{id}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BakkuResponse> updateBakkuImages(@PathVariable(name = "id") Long id, BakkuImageRequest bakkuImageRequest) {
         BakkuResponse bakku = bakkuService.updateBakkuImages(id, bakkuImageRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(bakku);
+        return ResponseEntity.ok(bakku);
     }
 
     @PatchMapping(value = "/bakkus/{id}")
@@ -46,13 +56,24 @@ public class BakkuController {
 
         BakkuResponse bakku = bakkuService.updateBakkuField(id, bakkuFieldRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(bakku);
+        return ResponseEntity.ok(bakku);
     }
 
     @DeleteMapping(value = "/bakkus/{id}")
-    public ResponseEntity<Object> deleteBakku(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<Void> deleteBakku(@PathVariable(name = "id") Long id) {
         bakkuService.deleteById(id);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/group/{id}/bakkus")
+    public ResponseEntity<Slice<BakkuResponse>> findAllByGroupId(@PathVariable(name = "id") Long id, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(bakkuService.findAllByGroupId(id, pageable));
+    }
+    @GetMapping("/oceans/{id}/bakkus")
+    public ResponseEntity<Slice<BakkuResponse>> findAllByOceanId(@PathVariable(name = "id") Long id, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(bakkuService.findAllByOceanId(id,pageable));
+    }
+
+
 }

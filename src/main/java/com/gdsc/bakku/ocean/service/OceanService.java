@@ -1,7 +1,7 @@
 package com.gdsc.bakku.ocean.service;
 
-import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.common.exception.OceanNotFoundException;
+import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepository;
 import com.gdsc.bakku.ocean.domain.repo.OceanRepositorySupport;
 import com.gdsc.bakku.ocean.dto.OceanDTO;
@@ -26,12 +26,12 @@ public class OceanService {
 
     @Transactional(readOnly = true)
     public OceanDTO findById(Long id) {
-        return oceanRepository.findById(id)
-                .orElseThrow(OceanNotFoundException::new)
-                .toDTO();
+        return findEntityById(id).toDTO();
     }
 
-    public Slice<BakkuResponse> findBakkusById(Long id,Pageable pageable) {
-        return oceanRepositorySupport.findBakkus(id, pageable);
+    @Transactional(readOnly = true)
+    public Ocean findEntityById(Long id) {
+        return oceanRepository.findById(id)
+                .orElseThrow(OceanNotFoundException::new);
     }
 }
