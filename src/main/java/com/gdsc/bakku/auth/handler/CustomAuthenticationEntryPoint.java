@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
@@ -23,15 +24,15 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         String value = request.getHeader("Authorization");
 
         if (Strings.isBlank(value)) {
-            ResponseUtil.setResponse(response, 401, "TOKEN_IS_NULL");
+            ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, "TOKEN_IS_NULL");
         } else if (!value.contains("Bearer ")) {
-            ResponseUtil.setResponse(response, 401, "INVALID_TOKEN(must start with 'Bearer ')");
+            ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, "INVALID_TOKEN(must start with 'Bearer ')");
         } else {
             String token = value.substring(7);
             try {
                 firebaseAuth.verifyIdToken(token);
             } catch (FirebaseAuthException e) {
-                ResponseUtil.setResponse(response, 401, String.valueOf(e.getAuthErrorCode()));
+                ResponseUtil.setResponse(response, HttpStatus.UNAUTHORIZED, String.valueOf(e.getAuthErrorCode()));
             }
         }
     }

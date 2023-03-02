@@ -17,7 +17,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class OceanRepositorySupport {
+public class  OceanRepositorySupport {
 
     private final JPAQueryFactory jpaQueryFactory;
 

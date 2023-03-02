@@ -7,7 +7,6 @@ import com.gdsc.bakku.storage.domain.entity.Image;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Getter
 @Entity
 @Table(name = "ocean")
