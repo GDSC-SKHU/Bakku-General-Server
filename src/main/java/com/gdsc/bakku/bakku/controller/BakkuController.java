@@ -34,9 +34,9 @@ public class BakkuController {
     }
 
     @PostMapping(value = "/bakkus", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BakkuResponse> saveBakku(@Valid @ModelAttribute BakkuRequest bakkuRequest,
-                                                   @AuthenticationPrincipal User user) {
-        BakkuResponse bakku = bakkuService.save(bakkuRequest, user);
+    public ResponseEntity<BakkuResponse> saveBakku(@AuthenticationPrincipal User user,
+                                                   @Valid @ModelAttribute BakkuRequest bakkuRequest) {
+        BakkuResponse bakku = bakkuService.save(user, bakkuRequest);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -48,24 +48,27 @@ public class BakkuController {
 
     @PostMapping(value = "/bakkus/{id}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BakkuResponse> updateBakkuImages(@PathVariable(name = "id") Long id,
+                                                           @AuthenticationPrincipal User user,
                                                            @Valid @ModelAttribute BakkuImageRequest bakkuImageRequest) {
-        BakkuResponse bakku = bakkuService.updateBakkuImages(id, bakkuImageRequest);
+        BakkuResponse bakku = bakkuService.updateBakkuImages(id, user, bakkuImageRequest);
 
         return ResponseEntity.ok(bakku);
     }
 
     @PatchMapping(value = "/bakkus/{id}")
     public ResponseEntity<BakkuResponse> updateBakkuField(@PathVariable(name = "id") Long id,
+                                                          @AuthenticationPrincipal User user,
                                                           @Valid @RequestBody BakkuFieldRequest bakkuFieldRequest) {
 
-        BakkuResponse bakku = bakkuService.updateBakkuField(id, bakkuFieldRequest);
+        BakkuResponse bakku = bakkuService.updateBakkuField(id, user, bakkuFieldRequest);
 
         return ResponseEntity.ok(bakku);
     }
 
     @DeleteMapping(value = "/bakkus/{id}")
-    public ResponseEntity<Void> deleteBakku(@PathVariable(name = "id") Long id) {
-        bakkuService.deleteById(id);
+    public ResponseEntity<Void> deleteBakku(@PathVariable(name = "id") Long id,
+                                            @AuthenticationPrincipal User user) {
+        bakkuService.deleteById(id, user);
 
         return ResponseEntity.ok().build();
     }

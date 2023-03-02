@@ -8,6 +8,7 @@ import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
 import com.gdsc.bakku.common.exception.BakkuNotFoundException;
+import com.gdsc.bakku.common.exception.UserNoPermissionException;
 import com.gdsc.bakku.group.domain.entity.Group;
 import com.gdsc.bakku.group.service.GroupService;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
@@ -34,7 +35,7 @@ public class BakkuService {
     private final ImageService imageService;
 
     @Transactional
-    public BakkuResponse save(BakkuRequest bakkuRequest, User user) {
+    public BakkuResponse save(User user, BakkuRequest bakkuRequest) {
         Group group = groupService.findOrCreateEntity(bakkuRequest.getGroupName());
 
         MultipartFile beforeImage = bakkuRequest.getBeforeImage();
@@ -76,23 +77,17 @@ public class BakkuService {
     }
 
     @Transactional
-    public void deleteById(Long id) {
+    public BakkuResponse updateBakkuField(Long id, User user, BakkuFieldRequest bakkuFieldRequest) {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
 
-        bakkuRepository.delete(bakku);
+        if (!bakku.getUser().equals(user)) {
+            throw new UserNoPermissionException();
+        }
 
-        imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
-    }
-
-    @Transactional
-    public BakkuResponse updateBakkuField(Long id, BakkuFieldRequest bakkuFieldRequest) {
         Ocean ocean = oceanService.findEntityById(bakkuFieldRequest.getOceanId());
 
         Group group = groupService.findOrCreateEntity(bakkuFieldRequest.getGroupName());
-
-        Bakku bakku = bakkuRepository.findById(id)
-                .orElseThrow(BakkuNotFoundException::new);
 
         bakku.update(bakkuFieldRequest.getComment(), bakkuFieldRequest.getCleanWeight(), bakkuFieldRequest.getDecorateDate());
 
@@ -104,9 +99,13 @@ public class BakkuService {
     }
 
     @Transactional
-    public BakkuResponse updateBakkuImages(Long id, BakkuImageRequest bakkuImageRequest) {
+    public BakkuResponse updateBakkuImages(Long id, User user, BakkuImageRequest bakkuImageRequest) {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
+
+        if (!bakku.getUser().equals(user)) {
+            throw new UserNoPermissionException();
+        }
 
         Image[] imagesForDelete = new Image[3];
 
@@ -130,6 +129,20 @@ public class BakkuService {
         Bakku updateBakku = bakkuRepository.save(bakku);
 
         return updateBakku.toDTO();
+    }
+
+    @Transactional
+    public void deleteById(Long id, User user) {
+        Bakku bakku = bakkuRepository.findById(id)
+                .orElseThrow(BakkuNotFoundException::new);
+
+        if (!bakku.getUser().equals(user)) {
+            throw new UserNoPermissionException();
+        }
+
+        bakkuRepository.delete(bakku);
+
+        imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
     }
 
     private void imagesDelete(Image ... images) {
