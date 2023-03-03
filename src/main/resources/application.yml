@@ -48,6 +48,10 @@ spring:
   config:
     activate:
       on-profile: development
+  data:
+    redis:
+      port: 6379
+      host: ${REDIS_HOST}
 
 logging:
   level:
@@ -58,7 +62,6 @@ logging:
         orm:
           jdbc:
             bind: trace
-
 ---
 
 spring:
