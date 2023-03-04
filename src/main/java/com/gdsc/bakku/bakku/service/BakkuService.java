@@ -97,7 +97,7 @@ public class BakkuService {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
 
-        if (!bakku.getUser().equals(user)) {
+        if (!bakku.getUser().getId().equals(user.getId())) {
             throw new UserNoPermissionException();
         }
 
@@ -121,7 +121,7 @@ public class BakkuService {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
 
-        if (!bakku.getUser().equals(user)) {
+        if (!bakku.getUser().getId().equals(user.getId())) {
             throw new UserNoPermissionException();
         }
 
@@ -154,7 +154,7 @@ public class BakkuService {
         Bakku bakku = bakkuRepository.findById(id)
                 .orElseThrow(BakkuNotFoundException::new);
 
-        if (!bakku.getUser().equals(user)) {
+        if (!bakku.getUser().getId().equals(user.getId())) {
             throw new UserNoPermissionException();
         }
 
