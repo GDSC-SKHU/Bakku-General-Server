@@ -42,6 +42,8 @@ public class SecurityConfig {
                 .and()
                 .authorizeHttpRequests()
                     .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/api-docs/**").permitAll()
                     .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(firebaseTokenFilter(), UsernamePasswordAuthenticationFilter.class)
