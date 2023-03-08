@@ -70,7 +70,7 @@ public class OpenApiConfig {
                 );
 
         unauthorized = new ApiResponse()
-                .description("인증 정보가 없습니다.")
+                .description("인증을 할 수 없습니다.(토큰 없음, 만료된 토큰, 잘못된 토큰 ...)")
                 .content(new Content()
                         .addMediaType("application/json",
                                 new MediaType().schema(schema)
