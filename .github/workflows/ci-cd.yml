@@ -40,7 +40,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
       # ssh로 접속해 재배포
-      - name: Deploy And Update Docs
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
@@ -48,6 +48,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
+            cd docker
             docker compose down
             docker compose pull
             docker compose up -d
