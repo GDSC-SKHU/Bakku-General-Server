@@ -7,35 +7,25 @@ import com.gdsc.bakku.bakku.dto.request.BakkuFieldRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
-import com.gdsc.bakku.bakku.dto.response.GroupRankingResponse;
-import com.gdsc.bakku.bakku.dto.response.GroupResponse;
 import com.gdsc.bakku.common.exception.BakkuNotFoundException;
-import com.gdsc.bakku.common.exception.GroupNotFoundException;
 import com.gdsc.bakku.common.exception.UserNoPermissionException;
 import com.gdsc.bakku.group.domain.entity.Group;
-import com.gdsc.bakku.group.domain.repo.GroupRepository;
 import com.gdsc.bakku.group.service.GroupService;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.ocean.service.OceanService;
+import com.gdsc.bakku.redis.service.RedisService;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import com.gdsc.bakku.storage.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class BakkuService {
-
     private final BakkuRepository bakkuRepository;
 
     private final GroupService groupService;
@@ -44,15 +34,14 @@ public class BakkuService {
 
     private final ImageService imageService;
 
-    private final StringRedisTemplate groupStringRedisTemplate;
-
-    private final GroupRepository groupRepository;
+    private final RedisService redisService;
 
     @Transactional
     public BakkuResponse save(User user, BakkuRequest bakkuRequest) {
         Group group = groupService.findOrCreateEntity(bakkuRequest.getGroupName());
 
         MultipartFile beforeImage = bakkuRequest.getBeforeImage();
+
         MultipartFile afterImage = bakkuRequest.getAfterImage();
 
         Bakku bakku = Bakku.builder()
@@ -68,7 +57,13 @@ public class BakkuService {
                 .build();
         Bakku saveBakku = bakkuRepository.save(bakku);
 
-        addRanking(group, bakku);
+        String groupId = group.getId().toString();
+
+        String oceanId = bakkuRequest.getOceanId().toString();
+
+        Double score = (double) bakkuRequest.getCleanWeight();
+
+        addRanking(groupId, oceanId, score);
 
         return saveBakku.toDTO();
     }
@@ -105,7 +100,7 @@ public class BakkuService {
 
         Group group = groupService.findOrCreateEntity(bakkuFieldRequest.getGroupName());
 
-        updateRanking(bakkuFieldRequest, bakku, group);
+        updateRanking(bakku, group, ocean, (double) bakkuFieldRequest.getCleanWeight());
 
         bakku.update(bakkuFieldRequest.getComment(), bakkuFieldRequest.getCleanWeight(), bakkuFieldRequest.getDecorateDate());
 
@@ -165,114 +160,67 @@ public class BakkuService {
         imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
     }
 
-    public GroupRankingResponse findAllGroupRanking() {
-        Set<String> groupWeightRanking = getZset("group_weight", 4);
+    private void addRanking(String groupId, String oceanId, Double score) {
+        redisService.ZsetAddOrUpdate("group_weight", groupId, score);
 
-        List<GroupResponse> groupWeight = groupWeightRanking.stream()
-                .map(groupId ->
-                        groupRepository.findById(Long.parseLong(groupId))
-                                .orElseThrow(GroupNotFoundException::new)
-                                .toDTO(ZsetGetScore("group_weight",groupId), ZsetGetScore( "group_count",groupId)))
-                .collect(Collectors.toList());
+        redisService.ZsetAddOrUpdate("group_count", groupId, 1.0);
 
-        Set<String> groupCountRanking = getZset("group_count", 4);
-
-        List<GroupResponse> groupCount = groupCountRanking.stream()
-                .map(groupId ->
-                        groupRepository.findById(Long.parseLong(groupId))
-                                .orElseThrow(GroupNotFoundException::new)
-                                .toDTO(ZsetGetScore("group_weight",groupId), ZsetGetScore( "group_count",groupId)))
-                .collect(Collectors.toList());
-
-        return GroupRankingResponse.builder()
-                .groupWeight(groupWeight)
-                .groupCount(groupCount)
-                .build();
+        redisService.ZsetAddOrUpdate("ocean_" + oceanId, groupId, score);
     }
 
-    public List<GroupResponse> findRankingByOceanId(Long id) {
-        Set<String> oceanRanking = getZset("ocean_" + id, 9);
+    private void updateRanking(Bakku bakku, Group newGroup, Ocean newOcean, Double newScore) {
+        String oldGroupName = bakku.getGroup().getName();
 
-        return oceanRanking.stream()
-                .map(groupId -> groupRepository.findById(Long.parseLong(groupId))
-                        .orElseThrow(GroupNotFoundException::new)
-                        .toDTO(ZsetGetScore("ocean_" + id, groupId), ZsetGetScore("group_count", groupId)))
-                .collect(Collectors.toList());
-    }
+        String oldGroupId = bakku.getGroup().getId().toString();
 
-    private void addRanking(Group group, Bakku bakku) {
-        Double presentWeight = ZsetGetScore("group_weight", bakku.getGroup().getId().toString());
+        Double oldScore = (double) bakku.getCleanWeight();
 
-        if ( presentWeight == null) {
-            ZSetAdd("group_weight", group.getId().toString(), (double) bakku.getCleanWeight());
+        String newGroupId = newGroup.getId().toString();
+
+        if (oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("group_weight", oldGroupId, newScore - oldScore);
         } else {
-            ZSetAdd("group_weight", group.getId().toString(), presentWeight + bakku.getCleanWeight());
+            redisService.ZsetAddOrUpdate("group_weight", oldGroupId, oldScore * (-1));
+
+            redisService.ZsetAddOrUpdate("group_count", oldGroupId, -1.0);
+
+            redisService.ZsetAddOrUpdate("group_weight", newGroupId, newScore);
+
+            redisService.ZsetAddOrUpdate("group_count", newGroupId, 1.0);
         }
 
-        Double presentCount = ZsetGetScore("group_count", bakku.getGroup().getId().toString());
+        String oldOceanId = bakku.getOcean().getId().toString();
 
-        if (presentCount == null) {
-            ZSetAdd("group_count", group.getId().toString(), 1.0);
-        }else {
-            ZSetAdd("group_count", group.getId().toString(), presentCount + 1);
-        }
+        String newOceanId = newOcean.getId().toString();
 
-        Double presentOcean = ZsetGetScore("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString());
+        redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, oldGroupId, oldScore * (-1));
 
-        if (presentOcean == null) {
-            ZSetAdd("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString(), (double) bakku.getCleanWeight());
+        if (oldOceanId.equals(newOceanId) && oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, oldGroupId, newScore);
+        } else if (oldOceanId.equals(newOceanId) && !oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, newGroupId, newScore);
+        } else if (!oldOceanId.equals(newOceanId) && oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + newOceanId, oldGroupId, newScore);
         } else {
-            ZSetAdd("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString(), presentOcean + bakku.getCleanWeight());
+            redisService.ZsetAddOrUpdate("ocean_" + newOceanId, newGroupId, newScore);
         }
-    }
-
-    private void updateRanking(BakkuFieldRequest bakkuFieldRequest, Bakku bakku, Group group) {
-        Double presentWeight = ZsetGetScore("group_weight", bakku.getGroup().getId().toString());
-
-        ZSetAdd("group_weight", group.getId().toString(), presentWeight - bakku.getCleanWeight() + bakkuFieldRequest.getCleanWeight());
-
-        Double presentOcean = ZsetGetScore("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString());
-
-        ZSetAdd("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString(), presentOcean - bakku.getCleanWeight() + bakkuFieldRequest.getCleanWeight());
     }
 
     private void deleteRanking(Bakku bakku) {
-        Double presentWeight = ZsetGetScore("group_weight", bakku.getGroup().getId().toString());
+        String groupId = bakku.getGroup().getId().toString();
 
-        ZSetAdd("group_weight"
-                , bakku.getGroup().getId().toString()
-                , presentWeight - bakku.getCleanWeight());
+        String oceanId = bakku.getOcean().getId().toString();
 
-        Double presentCount = ZsetGetScore("group_count", bakku.getGroup().getId().toString());
+        Double cleanWeight = (double) bakku.getCleanWeight();
 
-        ZSetAdd("group_count"
-                , bakku.getGroup().getId().toString()
-                , presentCount - 1);
+        redisService.ZsetAddOrUpdate("group_weight", groupId, cleanWeight * (-1));
 
-        Double presentOcean = ZsetGetScore("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString());
+        redisService.ZsetAddOrUpdate("group_count", groupId, -1.0);
 
-        ZSetAdd("ocean_" + bakku.getOcean().getId().toString(), bakku.getGroup().getId().toString(),presentOcean - bakku.getCleanWeight());
+        redisService.ZsetAddOrUpdate("ocean_" + oceanId, groupId, cleanWeight * (-1));
     }
 
-    private Set<String> getZset(String key, long end) {
-        ZSetOperations<String, String> groupRanking = groupStringRedisTemplate.opsForZSet();
-
-        return groupRanking.reverseRange(key, 0, end);
-    }
-
-    private Double ZsetGetScore(String key, String value) {
-        ZSetOperations<String, String> groupRanking = groupStringRedisTemplate.opsForZSet();
-
-        return groupRanking.score(key, value);
-    }
-
-    private void ZSetAdd(String key, String value, Double score) {
-        ZSetOperations<String, String> groupRanking = groupStringRedisTemplate.opsForZSet();
-
-        groupRanking.add(key, value, score);
-    }
-
-    private void imagesDelete(Image ... images) {
+    private void imagesDelete(Image... images) {
         for (Image image : images) {
             if (image == null) continue;
             imageService.deleteByEntity("bakku/", image);

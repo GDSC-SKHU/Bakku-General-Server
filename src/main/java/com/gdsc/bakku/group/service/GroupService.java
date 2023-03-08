@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
-
     private final GroupRepository groupRepository;
 
     private final GroupRepositorySupprot groupRepositorySupprot;
@@ -36,5 +35,4 @@ public class GroupService {
     public Group findEntityById(Long id) {
         return groupRepository.findById(id).orElseThrow(GroupNotFoundException::new);
     }
-
 }

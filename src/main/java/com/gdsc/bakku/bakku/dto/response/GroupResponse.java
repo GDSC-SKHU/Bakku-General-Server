@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Builder
 public record GroupResponse(
-        Long id,
+        Long groupId,
         String groupName,
         Double totalWeight,
         Double totalCount,

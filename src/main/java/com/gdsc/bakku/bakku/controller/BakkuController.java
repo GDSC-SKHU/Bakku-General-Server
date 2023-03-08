@@ -5,8 +5,6 @@ import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuFieldRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
-import com.gdsc.bakku.bakku.dto.response.GroupRankingResponse;
-import com.gdsc.bakku.bakku.dto.response.GroupResponse;
 import com.gdsc.bakku.bakku.service.BakkuService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,13 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class BakkuController {
-
     private final BakkuService bakkuService;
 
     @GetMapping("/bakkus/{id}")
@@ -34,20 +30,6 @@ public class BakkuController {
         BakkuResponse bakku = bakkuService.findById(id);
 
         return ResponseEntity.ok(bakku);
-    }
-
-    @GetMapping("/ranking/group")
-    public ResponseEntity<GroupRankingResponse> findGroupRanking() {
-        GroupRankingResponse groupRankingResponse = bakkuService.findAllGroupRanking();
-
-        return ResponseEntity.ok(groupRankingResponse);
-    }
-
-    @GetMapping("/ranking/ocean/{id}")
-    public ResponseEntity<List<GroupResponse>> findRankingByOceanId(@PathVariable(name = "id") Long id) {
-        List<GroupResponse> rankingByOceanId = bakkuService.findRankingByOceanId(id);
-
-        return ResponseEntity.ok(rankingByOceanId);
     }
 
     @PostMapping(value = "/bakkus", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -97,7 +79,7 @@ public class BakkuController {
 
     @GetMapping("/oceans/{id}/bakkus")
     public ResponseEntity<Slice<BakkuResponse>> findAllByOceanId(@PathVariable(name = "id") Long id, @PageableDefault Pageable pageable) {
-        return ResponseEntity.ok(bakkuService.findAllByOceanId(id,pageable));
+        return ResponseEntity.ok(bakkuService.findAllByOceanId(id, pageable));
     }
 
 

@@ -22,7 +22,7 @@ public class Group extends BaseTimeEntity {
 
     public GroupResponse toDTO(Double totalWeight, Double totalCount) {
         return GroupResponse.builder()
-                .id(id)
+                .groupId(id)
                 .groupName(name)
                 .totalWeight(totalWeight)
                 .totalCount(totalCount)
