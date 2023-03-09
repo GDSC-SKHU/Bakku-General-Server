@@ -1,8 +1,6 @@
 package com.gdsc.bakku.report.controller;
 
 import com.gdsc.bakku.auth.domain.entity.User;
-import com.gdsc.bakku.bakku.domain.entity.Bakku;
-import com.gdsc.bakku.bakku.service.BakkuService;
 import com.gdsc.bakku.report.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
     private final ReportService reportService;
 
-    private final BakkuService bakkuService;
-
     @PostMapping("/bakku/{id}/reports")
     public ResponseEntity<Void> save(@PathVariable(name = "id") Long id, @AuthenticationPrincipal User user) {
-        Bakku bakku = bakkuService.findEntityById(id);
-
-        reportService.save(bakku, user);
+        reportService.save(id, user);
 
         return ResponseEntity.ok().build();
     }

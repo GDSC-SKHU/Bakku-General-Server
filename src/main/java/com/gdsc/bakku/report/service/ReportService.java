@@ -18,7 +18,9 @@ public class ReportService {
     private final BakkuService bakkuService;
 
     @Transactional
-    public void save(Bakku bakku, User user) {
+    public void save(Long id, User user) {
+        Bakku bakku = bakkuService.findEntityById(id);
+
         if (checkUser(bakku, user)) {
             throw new AlreadyReportException();
         }
