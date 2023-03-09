@@ -7,10 +7,10 @@ import static org.springframework.http.HttpStatus.*;
 
 @Getter
 public enum StatusEnum {
-
     //400
     NOT_SUPPORT_FILE_FORMANT(BAD_REQUEST, "파일 형식은 이미지만 지원합니다."),
     INVALID_POSITION(BAD_REQUEST, "위도(-90 ~ 90) 혹은 경도(-180 ~ 180)의 범위를 확인해 주세요"),
+    ALREADY_REPORT(BAD_REQUEST,"이미 신고하셨습니다"),
 
     //403
     USER_NO_PERMISSION(FORBIDDEN, "해당 유저는 데이터를 접근할 권한이 없습니다."),
