@@ -47,46 +47,33 @@ public class BakkuController {
         return ResponseEntity.ok(bakku);
     }
 
-    @GetMapping("/group/{id}/bakkus")
+    @GetMapping("/bakkus")
     @Operation(
-            summary = "특정 단체에 속한 바꾸들 조회",
-            description = "단체 ID에 연관된 바꾸들을 조회합니다.",
+            summary = "바꾸들을 조회합니다.",
+            description = "바꾸들을 조회합니다. Request Param에 따라서 반환되는 요소들이 다릅니다.",
             parameters = {
-                    @Parameter(name = "id", description = "단체 ID", example = "1")
+                    @Parameter(name = "gid", description = "단체 ID"),
+                    @Parameter(name = "oid", description = "바다 ID"),
+                    @Parameter(name = "uid", description = "유저 아이디")
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "요청 성공"),
-                    @ApiResponse(responseCode = "204", description = "데이터 없음"),
+                    @ApiResponse(responseCode = "204", ref = "204"),
                     @ApiResponse(responseCode = "404", ref = "404")
             }
     )
     @CustomPageableAsQueryParam
-    public ResponseEntity<Slice<BakkuResponse>> findAllByGroupId(
-            @PathVariable(name = "id") Long id,
-            @Parameter(hidden = true) @PageableDefault(size = 5) Pageable pageable
-    ) {
-        return ResponseEntity.ok(bakkuService.findAllByGroupId(id, pageable));
-    }
+    public ResponseEntity<Slice<BakkuResponse>> findAll(@RequestParam(name = "gid", required = false) Long groupId,
+                                                        @RequestParam(name = "oid", required = false) Long oceanId,
+                                                        @RequestParam(name = "uid", required = false) String uid,
+                                                        @Parameter(hidden = true) @PageableDefault(size = 5) Pageable pageable) {
+        Slice<BakkuResponse> body = bakkuService.findAll(pageable, groupId, oceanId, uid);
 
-    @GetMapping("/oceans/{id}/bakkus")
-    @Operation(
-            summary = "특정 바다에 속한 바꾸들 조회",
-            description = "바다 ID에 연관된 바꾸들을 조회합니다.",
-            parameters = {
-                    @Parameter(name = "id", description = "바다 ID", example = "1")
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "요청 성공"),
-                    @ApiResponse(responseCode = "204", description = "데이터 없음"),
-                    @ApiResponse(responseCode = "404", ref = "404")
-            }
-    )
-    @CustomPageableAsQueryParam
-    public ResponseEntity<Slice<BakkuResponse>> findAllByOceanId(
-            @PathVariable(name = "id") Long id,
-            @Parameter(hidden = true) @PageableDefault(size = 5) Pageable pageable
-    ) {
-        return ResponseEntity.ok(bakkuService.findAllByOceanId(id,pageable));
+        if (body.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping(value = "/bakkus", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
