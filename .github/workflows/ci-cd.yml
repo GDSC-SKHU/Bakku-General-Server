@@ -39,8 +39,8 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-      # ssh로 접속해 재배포와 문서 최신화
-      - name: Deploy And Update Docs
+      # ssh로 접속해 재배포
+      - name: Deploy
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.REMOTE_IP }}
@@ -48,9 +48,7 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            cd docker/Bakku-General-Server
-            git pull origin main
-            cd ..
+            cd docker
             docker compose down
             docker compose pull
             docker compose up -d
