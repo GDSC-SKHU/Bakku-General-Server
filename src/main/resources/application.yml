@@ -5,6 +5,10 @@ firebase:
   key: ${FIREBASE_KEY}
 
 spring:
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_HOST}
   cloud:
     gcp:
       storage:
@@ -73,7 +77,6 @@ logging:
         orm:
           jdbc:
             bind: trace
-
 ---
 
 spring:

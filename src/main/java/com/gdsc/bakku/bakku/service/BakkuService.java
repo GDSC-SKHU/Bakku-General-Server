@@ -13,6 +13,7 @@ import com.gdsc.bakku.group.domain.entity.Group;
 import com.gdsc.bakku.group.service.GroupService;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.ocean.service.OceanService;
+import com.gdsc.bakku.redis.service.RedisService;
 import com.gdsc.bakku.storage.domain.entity.Image;
 import com.gdsc.bakku.storage.service.ImageService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class BakkuService {
-
     private final BakkuRepository bakkuRepository;
 
     private final GroupService groupService;
@@ -34,11 +34,14 @@ public class BakkuService {
 
     private final ImageService imageService;
 
+    private final RedisService redisService;
+
     @Transactional
     public BakkuResponse save(User user, BakkuRequest bakkuRequest) {
         Group group = groupService.findOrCreateEntity(bakkuRequest.getGroupName());
 
         MultipartFile beforeImage = bakkuRequest.getBeforeImage();
+
         MultipartFile afterImage = bakkuRequest.getAfterImage();
 
         Bakku bakku = Bakku.builder()
@@ -52,8 +55,15 @@ public class BakkuService {
                 .afterImage(imageSave(afterImage))
                 .user(user)
                 .build();
-
         Bakku saveBakku = bakkuRepository.save(bakku);
+
+        String groupId = group.getId().toString();
+
+        String oceanId = bakkuRequest.getOceanId().toString();
+
+        Double score = (double) bakkuRequest.getCleanWeight();
+
+        addRanking(groupId, oceanId, score);
 
         return saveBakku.toDTO();
     }
@@ -66,6 +76,7 @@ public class BakkuService {
     @Transactional(readOnly = true)
     public Slice<BakkuResponse> findAllByGroupId(Long id, Pageable pageable) {
         Group group = groupService.findEntityById(id);
+
         return bakkuRepository.findAllByGroup(group, pageable).map(Bakku::toDTO);
     }
 
@@ -88,6 +99,8 @@ public class BakkuService {
         Ocean ocean = oceanService.findEntityById(bakkuFieldRequest.getOceanId());
 
         Group group = groupService.findOrCreateEntity(bakkuFieldRequest.getGroupName());
+
+        updateRanking(bakku, group, ocean, (double) bakkuFieldRequest.getCleanWeight());
 
         bakku.update(bakkuFieldRequest.getComment(), bakkuFieldRequest.getCleanWeight(), bakkuFieldRequest.getDecorateDate());
 
@@ -140,12 +153,74 @@ public class BakkuService {
             throw new UserNoPermissionException();
         }
 
+        deleteRanking(bakku);
+
         bakkuRepository.delete(bakku);
 
         imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
     }
 
-    private void imagesDelete(Image ... images) {
+    private void addRanking(String groupId, String oceanId, Double score) {
+        redisService.ZsetAddOrUpdate("group_weight", groupId, score);
+
+        redisService.ZsetAddOrUpdate("group_count", groupId, 1.0);
+
+        redisService.ZsetAddOrUpdate("ocean_" + oceanId, groupId, score);
+    }
+
+    private void updateRanking(Bakku bakku, Group newGroup, Ocean newOcean, Double newScore) {
+        String oldGroupName = bakku.getGroup().getName();
+
+        String oldGroupId = bakku.getGroup().getId().toString();
+
+        Double oldScore = (double) bakku.getCleanWeight();
+
+        String newGroupId = newGroup.getId().toString();
+
+        if (oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("group_weight", oldGroupId, newScore - oldScore);
+        } else {
+            redisService.ZsetAddOrUpdate("group_weight", oldGroupId, oldScore * (-1));
+
+            redisService.ZsetAddOrUpdate("group_count", oldGroupId, -1.0);
+
+            redisService.ZsetAddOrUpdate("group_weight", newGroupId, newScore);
+
+            redisService.ZsetAddOrUpdate("group_count", newGroupId, 1.0);
+        }
+
+        String oldOceanId = bakku.getOcean().getId().toString();
+
+        String newOceanId = newOcean.getId().toString();
+
+        redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, oldGroupId, oldScore * (-1));
+
+        if (oldOceanId.equals(newOceanId) && oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, oldGroupId, newScore);
+        } else if (oldOceanId.equals(newOceanId) && !oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + oldOceanId, newGroupId, newScore);
+        } else if (!oldOceanId.equals(newOceanId) && oldGroupName.equals(newGroup.getName())) {
+            redisService.ZsetAddOrUpdate("ocean_" + newOceanId, oldGroupId, newScore);
+        } else {
+            redisService.ZsetAddOrUpdate("ocean_" + newOceanId, newGroupId, newScore);
+        }
+    }
+
+    private void deleteRanking(Bakku bakku) {
+        String groupId = bakku.getGroup().getId().toString();
+
+        String oceanId = bakku.getOcean().getId().toString();
+
+        Double cleanWeight = (double) bakku.getCleanWeight();
+
+        redisService.ZsetAddOrUpdate("group_weight", groupId, cleanWeight * (-1));
+
+        redisService.ZsetAddOrUpdate("group_count", groupId, -1.0);
+
+        redisService.ZsetAddOrUpdate("ocean_" + oceanId, groupId, cleanWeight * (-1));
+    }
+
+    private void imagesDelete(Image... images) {
         for (Image image : images) {
             if (image == null) continue;
             imageService.deleteByEntity("bakku/", image);

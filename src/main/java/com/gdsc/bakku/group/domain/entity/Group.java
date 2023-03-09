@@ -1,5 +1,6 @@
 package com.gdsc.bakku.group.domain.entity;
 
+import com.gdsc.bakku.bakku.dto.response.GroupResponse;
 import com.gdsc.bakku.common.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,4 +19,14 @@ public class Group extends BaseTimeEntity {
 
     @Column(name = "name", nullable = false)
     private String name;
+
+    public GroupResponse toDTO(Double totalWeight, Double totalCount) {
+        return GroupResponse.builder()
+                .groupId(id)
+                .groupName(name)
+                .totalWeight(totalWeight)
+                .totalCount(totalCount)
+                .createdDate(createdDate.toLocalDate())
+                .build();
+    }
 }

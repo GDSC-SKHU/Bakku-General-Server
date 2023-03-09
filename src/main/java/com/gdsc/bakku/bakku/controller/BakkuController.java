@@ -27,7 +27,6 @@ import java.net.URI;
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class BakkuController {
-
     private final BakkuService bakkuService;
 
     @GetMapping("/bakkus/{id}")
@@ -172,5 +171,4 @@ public class BakkuController {
 
         return ResponseEntity.ok().build();
     }
-
 }
