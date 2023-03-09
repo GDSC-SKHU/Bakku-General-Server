@@ -5,6 +5,10 @@ firebase:
   key: ${FIREBASE_KEY}
 
 spring:
+  data:
+    redis:
+      port: ${REDIS_PORT}
+      host: ${REDIS_HOST}
   cloud:
     gcp:
       storage:
@@ -48,10 +52,6 @@ spring:
   config:
     activate:
       on-profile: development
-  data:
-    redis:
-      port: 6379
-      host: ${REDIS_HOST}
 
 logging:
   level:
