@@ -21,7 +21,7 @@ public class OceanService {
 
     @Transactional(readOnly = true)
     public Slice<OceanDTO> findAll(Double latitude, Double longitude, Pageable pageable) {
-        return oceanRepositorySupport.findCloseOcean(latitude, longitude, pageable);
+        return oceanRepositorySupport.findCloseOcean(latitude, longitude, pageable).map(Ocean::toDTO);
     }
 
     @Transactional(readOnly = true)

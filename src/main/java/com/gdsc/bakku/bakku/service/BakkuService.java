@@ -1,8 +1,10 @@
 package com.gdsc.bakku.bakku.service;
 
 import com.gdsc.bakku.auth.domain.entity.User;
+import com.gdsc.bakku.auth.service.UserService;
 import com.gdsc.bakku.bakku.domain.entity.Bakku;
 import com.gdsc.bakku.bakku.domain.repo.BakkuRepository;
+import com.gdsc.bakku.bakku.domain.repo.BakkuRepositorySupport;
 import com.gdsc.bakku.bakku.dto.request.BakkuFieldRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuImageRequest;
 import com.gdsc.bakku.bakku.dto.request.BakkuRequest;
@@ -28,11 +30,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class BakkuService {
     private final BakkuRepository bakkuRepository;
 
+    private final BakkuRepositorySupport bakkuRepositorySupport;
+
     private final GroupService groupService;
 
     private final OceanService oceanService;
 
     private final ImageService imageService;
+
+    private final UserService userService;
 
     private final RedisService redisService;
 
@@ -74,17 +80,14 @@ public class BakkuService {
     }
 
     @Transactional(readOnly = true)
-    public Slice<BakkuResponse> findAllByGroupId(Long id, Pageable pageable) {
-        Group group = groupService.findEntityById(id);
+    public Slice<BakkuResponse> findAll(Pageable pageable, Long groupId, Long oceanId, String username) {
+        Group group = (groupId != null) ? groupService.findEntityById(groupId) : null;
 
-        return bakkuRepository.findAllByGroup(group, pageable).map(Bakku::toDTO);
-    }
+        Ocean ocean = (oceanId != null) ? oceanService.findEntityById(oceanId) : null;
 
-    @Transactional(readOnly = true)
-    public Slice<BakkuResponse> findAllByOceanId(Long id, Pageable pageable) {
-        Ocean ocean = oceanService.findEntityById(id);
+        User user = (username != null) ? userService.loadUserByUsername(username) : null;
 
-        return bakkuRepository.findAllByOcean(ocean, pageable).map(Bakku::toDTO);
+        return bakkuRepositorySupport.findAll(group, ocean, user, pageable).map(Bakku::toDTO);
     }
 
     @Transactional
