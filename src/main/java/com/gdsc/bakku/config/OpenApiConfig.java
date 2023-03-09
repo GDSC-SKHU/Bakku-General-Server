@@ -44,10 +44,10 @@ public class OpenApiConfig {
                                 .description("Firebase에서 받은 액세스 토큰을 입력해주세요.(Bearer 안붙여도됨)")
                 );
 
-        Map<String, ApiResponse> errorResponses = getErrorResponses();
+        Map<String, ApiResponse> responses = getResponses();
 
-        for (String key : errorResponses.keySet()) {
-            components.addResponses(key, errorResponses.get(key));
+        for (String key : responses.keySet()) {
+            components.addResponses(key, responses.get(key));
         }
 
         return new OpenAPI()
@@ -56,10 +56,18 @@ public class OpenApiConfig {
                 .info(info);
     }
 
-    private Map<String, ApiResponse> getErrorResponses() {
-        ApiResponse badRequest, unauthorized, forbidden, notFound, internalServerError;
+    private Map<String, ApiResponse> getResponses() {
+        ApiResponse noContent, badRequest, unauthorized, forbidden, notFound, internalServerError;
         var schema = ModelConverters.getInstance()
                         .resolveAsResolvedSchema(new AnnotatedType(FailureResponseBody.class)).schema;
+
+        noContent = new ApiResponse()
+                .description("데이터 없음")
+                .content(new Content()
+                        .addMediaType("application/json",
+                                new MediaType().schema(null)
+                        )
+                );
 
         badRequest = new ApiResponse()
                 .description("잘못된 요청입니다.")
@@ -103,6 +111,7 @@ public class OpenApiConfig {
 
 
         return Map.of(
+                "204", noContent,
                 "400", badRequest,
                 "401", unauthorized,
                 "403", forbidden,
