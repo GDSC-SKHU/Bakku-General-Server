@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping("/bakku/{id}/reports")
+    @PostMapping("/bakkus/{id}/reports")
     public ResponseEntity<Void> save(@PathVariable(name = "id") Long id, @AuthenticationPrincipal User user) {
         reportService.save(id, user);
 
