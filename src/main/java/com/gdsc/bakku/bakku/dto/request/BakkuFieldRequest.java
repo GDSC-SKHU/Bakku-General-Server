@@ -1,9 +1,9 @@
 package com.gdsc.bakku.bakku.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class BakkuFieldRequest {
     private LocalDate decorateDate;
 
     @NotNull
-    @Size(max = 10000)
+    @Max(10000)
     @Schema(description = "청소한 무게", example = "100")
     private int cleanWeight;
 
