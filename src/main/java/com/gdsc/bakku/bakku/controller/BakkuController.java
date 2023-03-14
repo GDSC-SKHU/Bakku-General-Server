@@ -14,7 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -63,10 +65,18 @@ public class BakkuController {
             }
     )
     @CustomPageableAsQueryParam
-    public ResponseEntity<Slice<BakkuResponse>> findAll(@RequestParam(name = "gid", required = false) Long groupId,
-                                                        @RequestParam(name = "oid", required = false) Long oceanId,
-                                                        @RequestParam(name = "uid", required = false) String uid,
-                                                        @Parameter(hidden = true) @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<Slice<BakkuResponse>> findAll(
+            @RequestParam(name = "gid", required = false)
+            Long groupId,
+            @RequestParam(name = "oid", required = false)
+            Long oceanId,
+            @RequestParam(name = "uid", required = false)
+            String uid,
+            @Parameter(hidden = true)
+            @PageableDefault(size = 5)
+            @SortDefault(value = "id", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
         Slice<BakkuResponse> body = bakkuService.findAll(pageable, groupId, oceanId, uid);
 
         if (body.isEmpty()) {
