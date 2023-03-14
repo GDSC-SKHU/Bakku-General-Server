@@ -3,6 +3,7 @@ package com.gdsc.bakku.bakku.domain.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gdsc.bakku.auth.domain.entity.User;
 import com.gdsc.bakku.bakku.dto.response.BakkuResponse;
+import com.gdsc.bakku.common.entity.BaseTimeEntity;
 import com.gdsc.bakku.group.domain.entity.Group;
 import com.gdsc.bakku.ocean.domain.entity.Ocean;
 import com.gdsc.bakku.storage.domain.entity.Image;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Bakku {
+public class Bakku extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -70,6 +71,8 @@ public class Bakku {
                 .groupName(group.getName())
                 .oceanId(ocean.getId())
                 .oceanName(ocean.getName())
+                .createdDate(createdDate)
+                .modifiedDate(modifiedDate)
                 .build();
     }
 

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Schema(description = "바꾸 응답입니다.")
@@ -14,7 +15,7 @@ public record BakkuResponse(
         String comment,
         @Schema(description = "청소한 무게(kg)", example = "10")
         int cleanWeight,
-        @Schema(description = "청소한 시간", example = "2023-02-27T20:44:28")
+        @Schema(description = "청소한 시간", example = "2023-02-27")
         LocalDate decorateTime,
         @Schema(description = "메인 이미지 url", example = "https://i.namu.wiki/i/TwwcGwWqzN8HWluj-kUbX4rzuhHristP1LsE3K_gG_vUfMoFiqPRT0_Nm5LPjySVzrvh5NsyDxVzV9sRpFec5iNswOqUjEYt2qmcGn7xtM44DwD_A28ma3iJD69Hnr4Ctfgcu6C7tN5Vo4-voblIWg.webp")
         String titleImageUrl,
@@ -27,6 +28,10 @@ public record BakkuResponse(
         @Schema(description = "청소한 바다 FK", example = "1")
         Long oceanId,
         @Schema(description = "바다 이름", example = "을왕리 해수욕장")
-        String oceanName
+        String oceanName,
+        @Schema(description = "생성 시간", example = "2023-02-27T20:44:28")
+        LocalDateTime createdDate,
+        @Schema(description = "수정 시간", example = "2023-02-27T20:44:28")
+        LocalDateTime modifiedDate
 ) {
 }
