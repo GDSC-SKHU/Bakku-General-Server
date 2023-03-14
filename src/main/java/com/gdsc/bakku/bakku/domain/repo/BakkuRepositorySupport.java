@@ -20,20 +20,14 @@ import java.util.List;
 public class BakkuRepositorySupport {
 
     private final JPAQueryFactory jpaQueryFactory;
-    private final QBakku qBakku = QBakku.bakku;
+    private final QBakku bakku = QBakku.bakku;
 
     public Slice<Bakku> findAll(Group group, Ocean ocean, User user, Pageable pageable) {
-        QBakku qBakku = QBakku.bakku;
-
-        List<Bakku> bakkuList = jpaQueryFactory.selectFrom(qBakku)
-                .where(
-                        eqGroup(group),
-                        eqOcean(ocean),
-                        eqUser(user)
-                )
+        List<Bakku> bakkuList = jpaQueryFactory.selectFrom(bakku)
+                .where(getBooleanExpressions(group, ocean, user))
                 .limit(pageable.getPageSize() + 1)
                 .offset(pageable.getOffset())
-                .orderBy(qBakku.id.desc())
+                .orderBy(bakku.id.desc())
                 .fetch();
 
         boolean hasNext = false;
@@ -46,18 +40,11 @@ public class BakkuRepositorySupport {
         return new SliceImpl<>(bakkuList, pageable, hasNext);
     }
 
-    private BooleanExpression eqGroup(Group group) {
-        if (group == null) return null;
-        return qBakku.group.eq(group);
-    }
-
-    private BooleanExpression eqOcean(Ocean ocean) {
-        if (ocean == null) return null;
-        return qBakku.ocean.eq(ocean);
-    }
-
-    private BooleanExpression eqUser(User user) {
-        if (user == null) return null;
-        return qBakku.user.eq(user);
+    private BooleanExpression[] getBooleanExpressions(Group group, Ocean ocean, User user) {
+        return new BooleanExpression[]{
+                (group != null) ? bakku.group.eq(group) : null,
+                (ocean != null) ? bakku.ocean.eq(ocean) : null,
+                (user != null) ? bakku.user.eq(user) : null
+        };
     }
 }
