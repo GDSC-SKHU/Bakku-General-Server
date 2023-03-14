@@ -25,7 +25,7 @@ public class ReportService {
             throw new AlreadyReportException();
         }
 
-        if(checkAndDelete(bakku)){
+        if (checkAndDelete(bakku)) {
             Report report = Report.builder()
                     .bakku(bakku)
                     .user(user)
@@ -45,7 +45,7 @@ public class ReportService {
         if (numberOfReport >= 5) {
             reportRepository.deleteAllByBakku(bakku);
 
-            bakkuService.deleteByBakku(bakku);
+            bakkuService.deleteByEntity(bakku);
 
             return false;
         }

@@ -165,7 +165,7 @@ public class BakkuService {
     }
 
     @Transactional
-    public void deleteByBakku(Bakku bakku) {
+    public void deleteByEntity(Bakku bakku) {
         deleteRanking(bakku);
 
         bakkuRepository.delete(bakku);
