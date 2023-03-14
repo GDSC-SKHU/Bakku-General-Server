@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Schema(description = "바꾸 응답입니다.")
@@ -27,6 +28,10 @@ public record BakkuResponse(
         @Schema(description = "청소한 바다 FK", example = "1")
         Long oceanId,
         @Schema(description = "바다 이름", example = "을왕리 해수욕장")
-        String oceanName
+        String oceanName,
+        @Schema(description = "생성 시간", example = "2023-02-27T20:44:28")
+        LocalDateTime createdDate,
+        @Schema(description = "수정 시간", example = "2023-02-27T20:44:28")
+        LocalDateTime modifiedDate
 ) {
 }
