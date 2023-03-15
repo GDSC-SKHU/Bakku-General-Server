@@ -69,7 +69,7 @@ public class BakkuRepositorySupport {
             return new OrderSpecifier<?>[0];
         }
     }
-
+    
     private BooleanExpression[] getBooleanExpressions(Group group, Ocean ocean, User user) {
         return new BooleanExpression[]{
                 (group != null) ? bakku.group.eq(group) : null,
