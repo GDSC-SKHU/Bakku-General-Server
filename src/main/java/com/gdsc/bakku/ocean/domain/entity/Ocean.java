@@ -22,6 +22,9 @@ public class Ocean extends BaseTimeEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "comment", nullable = false)
+    private String comment;
+
     @Column(name = "address", nullable = false, length = 500)
     private String address;
 
@@ -36,6 +39,7 @@ public class Ocean extends BaseTimeEntity {
         return OceanDTO.builder()
                 .id(id)
                 .name(name)
+                .comment(comment)
                 .address(address)
                 .latitude((position != null) ? position.getLatitude() : null)
                 .longitude((position != null) ? position.getLongitude() : null)

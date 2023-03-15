@@ -12,6 +12,8 @@ public record OceanDTO(
     Long id,
     @Schema(description = "이름", example = "바다 이름")
     String name,
+    @Schema(description = "내용", example = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.")
+    String comment,
     @Schema(description = "주소", example = "경기도 김포시")
     String address,
     @Schema(description = "위도", example = "37.58122552547526")
