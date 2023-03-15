@@ -61,6 +61,7 @@ public class BakkuService {
                 .afterImage(imageSave(afterImage))
                 .user(user)
                 .build();
+
         Bakku saveBakku = bakkuRepository.save(bakku);
 
         String groupId = group.getId().toString();
@@ -161,6 +162,20 @@ public class BakkuService {
         bakkuRepository.delete(bakku);
 
         imagesDelete(bakku.getTitleImage(), bakku.getAfterImage(), bakku.getBeforeImage());
+    }
+
+    @Transactional
+    public void deleteByEntity(Bakku bakku) {
+        deleteRanking(bakku);
+
+        bakkuRepository.delete(bakku);
+
+        imagesDelete(bakku.getTitleImage(),bakku.getAfterImage(),bakku.getBeforeImage());
+    }
+
+    @Transactional(readOnly = true)
+    public Bakku findEntityById(Long id) {
+        return bakkuRepository.findById(id).orElseThrow(BakkuNotFoundException::new);
     }
 
     private void addRanking(String groupId, String oceanId, Double score) {
