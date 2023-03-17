@@ -60,7 +60,6 @@ public class BakkuController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "요청 성공"),
-                    @ApiResponse(responseCode = "204", ref = "204"),
                     @ApiResponse(responseCode = "404", ref = "404")
             }
     )
@@ -78,10 +77,6 @@ public class BakkuController {
             Pageable pageable
     ) {
         Slice<BakkuResponse> body = bakkuService.findAll(pageable, groupId, oceanId, uid);
-
-        if (body.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(body);
     }
