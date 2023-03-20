@@ -1,5 +1,6 @@
 package com.gdsc.bakku.config;
 
+import com.gdsc.bakku.common.error.StatusEnum;
 import com.gdsc.bakku.common.exception.CustomAbstractException;
 import com.gdsc.bakku.common.response.FailureResponseBody;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +23,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = CustomAbstractException.class)
     public ResponseEntity<FailureResponseBody> handlerExceptions(CustomAbstractException e) {
         return FailureResponseBody.toResponseEntity(e.getStatusEnum());
+    }
+
+    @ExceptionHandler(value = MaxUploadSizeExceededException.class)
+    public ResponseEntity<FailureResponseBody> handlerFileSizeExceededException() {
+        return FailureResponseBody.toResponseEntity(StatusEnum.FILE_SIZE_EXCEEDED);
     }
 
     @ExceptionHandler(value = BindException.class)
