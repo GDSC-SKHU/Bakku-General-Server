@@ -112,6 +112,11 @@ spring:
     livereload:
       enabled: off
 
+logging:
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL}
+  config: classpath:logback-discord.xml
+
 server:
   error:
     include-stacktrace: never
