@@ -28,17 +28,12 @@ public class EventController {
             summary = "모든 이벤트 조회",
             description = "모든 이벤트를 조회합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "요청 성공"),
-                    @ApiResponse(responseCode = "204", description = "데이터 없음")
+                    @ApiResponse(responseCode = "200", description = "요청 성공")
             }
     )
     @CustomPageableAsQueryParam
     public ResponseEntity<Slice<EventDTO>> findAll(@Parameter(hidden = true) @PageableDefault(size = 5) Pageable pageable) {
         Slice<EventDTO> events = eventService.findAll(pageable);
-
-        if (events.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(events);
     }

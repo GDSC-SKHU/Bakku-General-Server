@@ -32,7 +32,6 @@ public class OceanController {
             },
             responses = {
                     @ApiResponse(responseCode = "200", description = "요청 성공"),
-                    @ApiResponse(responseCode = "204", description = "데이터 없음"),
                     @ApiResponse(responseCode = "400", ref = "400")
             }
 
@@ -46,10 +45,6 @@ public class OceanController {
         }
 
         Slice<OceanDTO> oceans = oceanService.findAll(latitude, longitude, pageable);
-
-        if (oceans.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok(oceans);
     }
