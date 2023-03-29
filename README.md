@@ -29,6 +29,7 @@ So the service that we created is **'Bakku'**
 
 Through various functions, we created SNS that is fun and motivating to users.
 
+
 For more information on how to use it, please [refer](#how-to-use) to the following.
 
 ## How to Use(Web)
@@ -99,12 +100,17 @@ You can see my information and the changes you made.
 
 ## Tech Stack
 
-- Angular
-- Material
-- Firebase hosting
-- Google analytics
-- Eslint, prettier
-- Husky, Commitlint, Lint-staged
+- Firebase
+- Google Compute Engine
+- Google Cloud Storage
+- Docker
+- Nginx
+- Java 17
+- Spring Boot 3.0
+- Redis
+- RDS(MySQL)
+
+![architecture](assets/architecture.png)
 
 ## Developers
 
