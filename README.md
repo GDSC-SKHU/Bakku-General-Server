@@ -111,6 +111,7 @@ You can see my information and the changes you made.
 - RDS(MySQL)
 
 ![architecture](assets/architecture.png)
+
 ## Developers
 
 |                         FE: Hyesung Oh                         |                       Android: Subin Kim                       |                           BE: Hyunsoo Han                           |                       BE: Hongyoung Jun                        |
